@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <title>Login - Book Notes</title>
+</head>
+
+<body>
+
+    <nav id="nav-bar" class="navHead">
+
+        <div class="logo">
+            <img src="/assets/icons/notebook.png" alt="notebook icon">
+            <h1>BookNotes <span>Archive</span></h1>
+        </div>
+
+    </nav>
+
+    <div class="login-container">
+        <h2 class="login-title">Login</h2>
+
+        <form action="/login" method="POST" class="login-form">
+            <div class="login-form-group">
+                <label for="email" class="login-label">Email:</label>
+                <input type="email" id="email" name="username" class="login-input" required>
+            </div>
+
+            <div class="login-form-group">
+                <label for="password" class="login-label">Password:</label>
+                <input type="password" id="password" name="password" class="login-input" required>
+            </div>
+
+            <button type="submit" class="login-btn">Login</button>
+
+            <p class="login-signup-text">Don't have an account? <a href="/register" class="login-signup-link">Register here</a>.</p>
+        </form>
+
+        <div class="login-google">
+            <p class="login-google-text">Or sign in with</p>
+            <a href="/auth/google" class="login-google-btn">Sign in with Google</a>
+        </div>
+    </div>
+</body>
+
+</html>
