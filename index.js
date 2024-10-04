@@ -69,15 +69,16 @@ async function getBook(currUser) {
 };
 
 
-async function getBooksByTitle(title) {
+async function getBooksByTitle(title, userId) {
   try {
-    const result = await db.query("SELECT * FROM book WHERE title ILIKE '%' || $1 || '%';", [title]);
+    const result = await db.query("SELECT * FROM book WHERE title ILIKE '%' || $1 || '%' AND user_id = $2;",
+      [title, userId]);
     return result.rows; // Return the filtered books
   } catch (error) {
     console.error("Error fetching books:", error);
     return []; // Return an empty array in case of an error
   }
-}
+};
 
 app.get("/", (req, res) => {
   res.render("home.ejs");
@@ -189,41 +190,60 @@ app.post("/register", async (req, res) => {
 });
 
 app.post("/searchList", async (req, res) => {
+  if (req.isAuthenticated()) {
+    
   const email = req.user.email;
   const searchTerm = req.body.getBookName;
+  const userName = req.user.name;
   const getbooks = await getBook(email);
   try {
     const response = await axios.get(`https://openlibrary.org/search.json?q=${searchTerm}&limit=10`);
     const books = response.data.docs;
-    res.render("index.ejs", { searchedBook: books, books: getbooks, searchTerm: searchTerm });
+    res.render("index.ejs", { searchedBook: books, books: getbooks, searchTerm: searchTerm, name: userName });
   } catch (error) {
     console.error(error);
     res.render("index.ejs", { books: [], searchTerm: searchTerm });
   }
+} else {
+    res.redirect("/login");
+}
 });
 
 
 
 app.get("/searchInside", async (req, res) => {
+  if (req.isAuthenticated()) {
+    
   const title = req.query.title;
+  const userName = req.user.name;
+  const userId = req.user.id;
+ 
   try {
-      const books = await getBooksByTitle(title);
-  res.render("index.ejs", { books });
+      const books = await getBooksByTitle(title, userId);
+  res.render("index.ejs", { books, name:userName });
   } catch (error) {
     console.log(error)
   }
+} else {
+    res.redirect("/login");
+}
   
 });
 
 
 
 app.get("/addBook", (req, res) => {
+if (req.isAuthenticated()) {
+  
 
   const title = req.query.title;
   const cover = req.query.cover
   const author = req.query.author;
 
   res.render("addBook.ejs", { title: title, cover: cover, author: author});
+} else {
+  res.redirect("/login");
+}
 });
 
 app.post("/addBook", async (req, res) => {
@@ -249,6 +269,9 @@ app.post("/addBook", async (req, res) => {
 
 app.get("/notes/:id", async (req, res) => {
 
+  if (req.isAuthenticated()) {
+    
+  
   console.log("Params received:", req.params);
   const id = parseInt(req.params.id);
   console.log("ID received:", id);
@@ -269,6 +292,9 @@ app.get("/notes/:id", async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+  }
+  } else {
+    res.redirect("/login");
   }
 });
 
