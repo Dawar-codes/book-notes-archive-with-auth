@@ -35,9 +35,9 @@ const db = new pg.Client({
   },
   // user: process.env.DB_USER,
   // host: process.env.DB_HOST,
-  // database: process.env.DB_NAME, // Use the name of your database here
+  // database: process.env.DB_NAME, // name of your database 
   // password: process.env.DB_PASSWORD,
-  // port: process.env.DB_PORT || 5432, // Use 5432 as a default if not set
+  // port: process.env.DB_PORT || 5432, //  5432 as a default if not set
 });
 
 db.connect()
@@ -52,9 +52,9 @@ db.connect()
 let books = [];
 
 async function getBook(currUser) {
-  
+
   try {
-    
+
     const result = await db.query("SELECT * FROM book JOIN users ON users.id=book.user_id WHERE email=$1 ORDER BY book.id DESC",
       [currUser]);
     books = result.rows;
@@ -90,7 +90,7 @@ app.get("/", (req, res) => {
 // });
 
 
-app.get("/login", (req, res) =>{
+app.get("/login", (req, res) => {
   res.render("login.ejs")
 });
 
@@ -109,18 +109,18 @@ app.get("/logout", (req, res) => {
 });
 
 app.get("/main", async (req, res) => {
-  
+
   if (req.isAuthenticated()) {
     const currentUser = req.user.email;
     const userName = req.user.name;
-    
+
     try {
-      const result = await db.query("SELECT * FROM users JOIN book ON users.id=book.user_id WHERE email = $1",[currentUser]);
+      const result = await db.query("SELECT * FROM users JOIN book ON users.id=book.user_id WHERE email = $1", [currentUser]);
       const userBooks = result.rows;
       if (userBooks) {
-        res.render("index.ejs", {books: userBooks, name: userName});
+        res.render("index.ejs", { books: userBooks, name: userName });
       } else {
-        res.render("index.ejs", {books: "Add your books"});
+        res.render("index.ejs", { books: "Add your books" });
       }
     } catch (error) {
       console.log(error)
@@ -191,70 +191,70 @@ app.post("/register", async (req, res) => {
 
 app.post("/searchList", async (req, res) => {
   if (req.isAuthenticated()) {
-    
-  const email = req.user.email;
-  const searchTerm = req.body.getBookName;
-  const userName = req.user.name;
-  const getbooks = await getBook(email);
-  try {
-    const response = await axios.get(`https://openlibrary.org/search.json?q=${searchTerm}&limit=10`);
-    const books = response.data.docs;
-    res.render("index.ejs", { searchedBook: books, books: getbooks, searchTerm: searchTerm, name: userName });
-  } catch (error) {
-    console.error(error);
-    res.render("index.ejs", { books: [], searchTerm: searchTerm });
-  }
-} else {
+
+    const email = req.user.email;
+    const searchTerm = req.body.getBookName;
+    const userName = req.user.name;
+    const getbooks = await getBook(email);
+    try {
+      const response = await axios.get(`https://openlibrary.org/search.json?q=${searchTerm}&limit=10`);
+      const books = response.data.docs;
+      res.render("index.ejs", { searchedBook: books, books: getbooks, searchTerm: searchTerm, name: userName });
+    } catch (error) {
+      console.error(error);
+      res.render("index.ejs", { books: [], searchTerm: searchTerm });
+    }
+  } else {
     res.redirect("/login");
-}
+  }
 });
 
 
 
 app.get("/searchInside", async (req, res) => {
   if (req.isAuthenticated()) {
-    
-  const title = req.query.title;
-  const userName = req.user.name;
-  const userId = req.user.id;
- 
-  try {
+
+    const title = req.query.title;
+    const userName = req.user.name;
+    const userId = req.user.id;
+
+    try {
       const books = await getBooksByTitle(title, userId);
-  res.render("index.ejs", { books, name:userName });
-  } catch (error) {
-    console.log(error)
-  }
-} else {
+      res.render("index.ejs", { books, name: userName });
+    } catch (error) {
+      console.log(error)
+    }
+  } else {
     res.redirect("/login");
-}
-  
+  }
+
 });
 
 
 
 app.get("/addBook", (req, res) => {
-if (req.isAuthenticated()) {
-  
+  if (req.isAuthenticated()) {
 
-  const title = req.query.title;
-  const cover = req.query.cover
-  const author = req.query.author;
 
-  res.render("addBook.ejs", { title: title, cover: cover, author: author});
-} else {
-  res.redirect("/login");
-}
+    const title = req.query.title;
+    const cover = req.query.cover
+    const author = req.query.author;
+
+    res.render("addBook.ejs", { title: title, cover: cover, author: author });
+  } else {
+    res.redirect("/login");
+  }
 });
 
 app.post("/addBook", async (req, res) => {
-  
+
   const email = req.user.email;
   const { title, author, rating, cover, date, review } = req.body;
   try {
-    const result1= await db.query("SELECT id FROM users WHERE email=$1",[email] );
+    const result1 = await db.query("SELECT id FROM users WHERE email=$1", [email]);
     const theUser = result1.rows[0].id;
     console.log(typeof theUser);
-    const result = await db.query("INSERT INTO book (title, author, rating, cover_id, date_added, review, user_id) VALUES ($1,$2,$3,$4,$5,$6,$7)", 
+    const result = await db.query("INSERT INTO book (title, author, rating, cover_id, date_added, review, user_id) VALUES ($1,$2,$3,$4,$5,$6,$7)",
       [title, author, rating, cover, date, review, theUser]);
 
   } catch (error) {
@@ -270,29 +270,29 @@ app.post("/addBook", async (req, res) => {
 app.get("/notes/:id", async (req, res) => {
 
   if (req.isAuthenticated()) {
-    
-  
-  console.log("Params received:", req.params);
-  const id = parseInt(req.params.id);
-  console.log("ID received:", id);
 
-  try {
-    const result = await db.query(`
+
+    console.log("Params received:", req.params);
+    const id = parseInt(req.params.id);
+    console.log("ID received:", id);
+
+    try {
+      const result = await db.query(`
     SELECT book.*, notes.book_notes 
     FROM book 
     LEFT JOIN notes ON book.id = notes.id 
     WHERE book.id = $1`,
-      [id]
-    );
-    if (result.rows.length > 0) {
-      const book = result.rows[0]; // Fetch the first (and only) book
-      res.render("notes.ejs", { book: book });
-    } else {
-      res.status(404).send("Book not found");
+        [id]
+      );
+      if (result.rows.length > 0) {
+        const book = result.rows[0]; // Fetch the first (and only) book
+        res.render("notes.ejs", { book: book });
+      } else {
+        res.status(404).send("Book not found");
+      }
+    } catch (error) {
+      console.log(error);
     }
-  } catch (error) {
-    console.log(error);
-  }
   } else {
     res.redirect("/login");
   }
